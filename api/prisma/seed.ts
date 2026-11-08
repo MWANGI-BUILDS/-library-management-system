@@ -3,10 +3,10 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const genres = [
-  { name: "Fantasy", description: "Imaginative worlds and magical elements." },
-  { name: "Science Fiction", description: "Speculative stories about science and technology." },
-  { name: "Mystery", description: "Stories centered on solving a puzzle or crime." },
-  { name: "Historical Fiction", description: "Fiction set in a past historical period." },
+  { name: "Fantasy", slug: "fantasy", description: "Imaginative worlds and magical elements." },
+  { name: "Science Fiction", slug: "science-fiction", description: "Speculative stories about science and technology." },
+  { name: "Mystery", slug: "mystery", description: "Stories centered on solving a puzzle or crime." },
+  { name: "Biography", slug: "biography", description: "Nonfiction accounts of people's lives." },
 ];
 
 const books = [
@@ -22,10 +22,10 @@ const books = [
   { title: "The Murder of Roger Ackroyd", author: "Agatha Christie", isbn: "9780062073563", publishedYear: 1926, genre: "Mystery" },
   { title: "The Daughter of Time", author: "Josephine Tey", isbn: "9780684803869", publishedYear: 1951, genre: "Mystery" },
   { title: "The Hound of the Baskervilles", author: "Arthur Conan Doyle", isbn: "9780140437867", publishedYear: 1902, genre: "Mystery" },
-  { title: "Wolf Hall", author: "Hilary Mantel", isbn: "9780312429980", publishedYear: 2009, genre: "Historical Fiction" },
-  { title: "The Book Thief", author: "Markus Zusak", isbn: "9780375842207", publishedYear: 2005, genre: "Historical Fiction" },
-  { title: "The Nightingale", author: "Kristin Hannah", isbn: "9780312577223", publishedYear: 2015, genre: "Historical Fiction" },
-  { title: "A Tale of Two Cities", author: "Charles Dickens", isbn: "9780141439600", publishedYear: 1859, genre: "Historical Fiction" },
+  { title: "Educated", author: "Tara Westover", isbn: "9780399590504", publishedYear: 2018, genre: "Biography" },
+  { title: "Becoming", author: "Michelle Obama", isbn: "9781524763138", publishedYear: 2018, genre: "Biography" },
+  { title: "The Glass Castle", author: "Jeannette Walls", isbn: "9780743247542", publishedYear: 2005, genre: "Biography" },
+  { title: "Unbroken", author: "Laura Hillenbrand", isbn: "9780812974492", publishedYear: 2010, genre: "Biography" },
 ];
 
 async function main() {
@@ -34,7 +34,7 @@ async function main() {
   for (const genre of genres) {
     const savedGenre = await prisma.genre.upsert({
       where: { name: genre.name },
-      update: { description: genre.description },
+      update: { slug: genre.slug, description: genre.description },
       create: genre,
     });
     genreIds.set(savedGenre.name, savedGenre.id);
@@ -53,6 +53,9 @@ async function main() {
         author: book.author,
         publishedYear: book.publishedYear,
         genreId,
+        description: `${book.title} by ${book.author}.`,
+        totalCopies: 3,
+        availableCopies: 3,
       },
       create: {
         title: book.title,
@@ -60,6 +63,9 @@ async function main() {
         isbn: book.isbn,
         publishedYear: book.publishedYear,
         genreId,
+        description: `${book.title} by ${book.author}.`,
+        totalCopies: 3,
+        availableCopies: 3,
       },
     });
   }
